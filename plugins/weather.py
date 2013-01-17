@@ -30,19 +30,27 @@ import requests
 import cPickle as pickle
 
 
-def city(data):
-    cityidDict = pickle.load(file(os.path.join(os.path.dirname(__file__), 'data' + os.path.sep + 'cityid'), 'r'))
+dataPath = os.path.join(os.path.dirname(__file__), 'data' + os.path.sep)
+
+
+def city_verify(data, dataFilePath):
+    cityidDict = pickle.load(file(dataFilePath, 'r'))
     for city in cityidDict:
         if city.encode('utf8') in data['message']:
             return True
     return False
 
 
+def city_exist(data):
+    high_reply = city_verify(data, dataPath + 'highlevelcityid')
+    return high_reply if high_reply else city_verify(data, dataPath + 'cityid')
+
+
 def test(data, bot):
-    return '天气' in data['message'] and city(data)
+    return '天气' in data['message'] and city_exist(data)
 
 
-def weather(cityid):
+def get_weather(cityid):
     try:
         weatherinfo = requests.get('http://www.weather.com.cn/data/cityinfo/' + cityid + '.html').json()['weatherinfo']
         return (weatherinfo['city'] + ', ' + weatherinfo['weather'] + ', ' + weatherinfo['temp1'] + ' ~ ' + weatherinfo['temp2']).encode('utf8')
@@ -50,15 +58,23 @@ def weather(cityid):
         return 0
 
 
-def handle(data, bot):
-    cityidDict = pickle.load(file(os.path.join(os.path.dirname(__file__), 'data' + os.path.sep + 'cityid'), 'r'))
+def weather(data, dataFilePath):
+    cityidDict = pickle.load(file(dataFilePath, 'r'))
     for city in cityidDict:
         if city.encode('utf8') in data['message']:
-            reply = weather(cityidDict[city])
+            reply = get_weather(cityidDict[city])
             return reply if reply else '不会自己去看天气预报啊'
+    return 0
+
+
+def handle(data, bot):
+    high_reply = weather(data, dataPath + 'highlevelcityid')
+    return high_reply if high_reply else weather(data, dataPath + 'cityid')
 
 
 if __name__ == '__main__':
     print test({'message': '天气怎么样'}, None)
     print test({'message': '北京天气怎么样'}, None)
+    print test({'message': '钓鱼岛天气怎么样'}, None)
     print handle({'message': '北京天气怎么样', 'author_id': 'HQM'}, None)
+    print handle({'message': '钓鱼岛天气怎么样', 'author_id': 'HQM'}, None)
