@@ -23,14 +23,9 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
+""" Calc24 plugin test """
 
-""" PM2.5 plugin test
-
-    Test Cases for xiaohuangji PM2.5 plugin
-"""
-
-
-__author__ = 'Wizmann'
+__author__ = 'Moody _"Kuuy"_ Wizmann'
 __copyright__ = 'Copyright (c) 2013 Wizmann'
 __license__ = 'MIT'
 __version__ = '0.1'
@@ -41,12 +36,12 @@ __status__ = 'development'
 from nose.tools import ok_
 from nose.tools import eq_
 from test_config import *
-from ..plugins import pm25
+from ..plugins import calc24
 
 sys.path = [TEST_DIR] + sys.path
 
 
-class TestPM25(TestBase):
+class TestCalc24(TestBase):
 
     def setup(self):
         pass
@@ -54,12 +49,24 @@ class TestPM25(TestBase):
     def teardown(self):
         pass
 
-    def test_pm25_test_1(self):
-        eq_(False, pm25.test({'message': 'Hello World'}, None), WRONG_KEY_WORD_ERROR)
-    def test_pm25_test_2(self):
-        eq_(False, pm25.test({'message': '北京'}, None), WRONG_KEY_WORD_ERROR)
-    def test_pm25_test_3(self):
-        eq_(False, pm25.test({'message': 'PM2.56789123'}, None), WRONG_KEY_WORD_ERROR)
-    def test_pm25_test_4(self):
-        eq_(True, pm25.test({'message': '天津PM2.56789123'}, None), WRONG_KEY_WORD_ERROR)
+    def test_calc24_test_1(self):
+        eq_(False, calc24.test({'message': 'Hello World 24'}, None), WRONG_KEY_WORD_ERROR)
+    
+    def test_calc24_test_2(self):
+        eq_(False, calc24.test({'message': 'Hello World 算24点'}, None), WRONG_KEY_WORD_ERROR)
+    
+    def test_calc24_test_3(self):
+        eq_(True, calc24.test({'message': 'Hello World 算24点 [1,2,4,5]'}, None), WRONG_RESULT_ERROR)
+
+    def test_calc24_handle_1(self):
+        result = calc24.handle({'message': 'Hello World 算24点 [1,2,4,5]', 'author_id': 'Wizmann'}, None)
+        eq_(True, '答案' in result, WRONG_RESULT_FORMAT_ERROR)
+        
+    def test_calc24_handle_2(self):
+        result = calc24.handle({'message': 'Hello World 算24点 [A,A,A,A]', 'author_id': 'Wizmann'}, None)
+        eq_(True, '答案' in result, WRONG_RESULT_FORMAT_ERROR)   
+        
+    def test_calc24_handle_3(self):
+        result = calc24.handle({'message': 'Hello World 算24点 [F,U,C,K]', 'author_id': 'Kuuy'}, None)
+        eq_(True, '没有那种牌' in result, WRONG_RESULT_FORMAT_ERROR)
 

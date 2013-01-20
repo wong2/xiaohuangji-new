@@ -1,5 +1,7 @@
 *.pyc
 *un~
+*.so
+*.swp
 my_accounts.py
 my_filterconfig.py
 settings.py
